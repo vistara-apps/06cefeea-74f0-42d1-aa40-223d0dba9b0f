@@ -5,7 +5,7 @@ import type { Asset } from '../types';
 
 interface AssetListProps {
   assets: Asset[];
-  onRemove: (id: string) => void;
+  onRemove?: (id: string) => void;
 }
 
 export function AssetList({ assets, onRemove }: AssetListProps) {
@@ -64,13 +64,15 @@ export function AssetList({ assets, onRemove }: AssetListProps) {
                 </div>
               </div>
               
-              <button
-                onClick={() => onRemove(asset.id)}
-                className="ml-3 p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 opacity-0 group-hover:opacity-100 transition-all duration-200"
-                aria-label={`Remove ${asset.symbol}`}
-              >
-                <Trash2 size={18} />
-              </button>
+              {onRemove && (
+                <button
+                  onClick={() => onRemove(asset.id)}
+                  className="ml-3 p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                  aria-label={`Remove ${asset.symbol}`}
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
             </div>
           </div>
         );

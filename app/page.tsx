@@ -1,22 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { DollarSign, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { PortfolioSummary } from './components/PortfolioSummary';
 import { AssetList } from './components/AssetList';
-import { AddAssetModal } from './components/AddAssetModal';
 import { ConnectWalletButton } from './components/ConnectWalletButton';
 import { EmptyStateEnhanced } from './components/EmptyStateEnhanced';
 import { PortfolioSummarySkeleton, AssetListSkeleton } from './components/LoadingSkeleton';
+import { NFTGallery } from './components/NFTGallery';
+import { PaymentModal } from './components/PaymentModal';
 import { useMiniKit } from './hooks/useMiniKit';
-import { usePortfolio } from './hooks/usePortfolio';
+import { useOnchainPortfolio } from './hooks/useOnchainPortfolio';
 
 export default function Home() {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { context, isReady } = useMiniKit();
-  const { portfolio, addAsset, removeAsset, totalValue, dailyChange } = usePortfolio();
+  const { tokens, nfts, totalValue, isLoading, error, isConnected, address, refresh } = useOnchainPortfolio();
+  
+  // Calculate daily change (we'll use a simple estimation based on token changes)
+  const dailyChange = 2.5; // You can implement real 24h change tracking if needed
 
   useEffect(() => {
     if (isReady) {
@@ -36,8 +40,9 @@ export default function Home() {
     const changePercent = dailyChange.toFixed(2);
     const isPositive = dailyChange >= 0;
     const emoji = isPositive ? '📈' : '📉';
+    const nftCount = nfts.length;
     
-    const message = `${emoji} My Minifolio is ${isPositive ? 'up' : 'down'} ${Math.abs(parseFloat(changePercent))}% today! Total value: $${totalValue.toFixed(2)}`;
+    const message = `${emoji} My Minifolio on Base: $${totalValue.toFixed(2)} across ${tokens.length} tokens${nftCount > 0 ? ` + ${nftCount} NFTs` : ''}! ${isPositive ? '+' : ''}${changePercent}% today`;
     
     // Use MiniKit's composeCast if available
     interface MiniKitWindow extends Window {
@@ -81,16 +86,18 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        {isInitialLoading ? (
+        {isInitialLoading || isLoading ? (
           <>
             <PortfolioSummarySkeleton />
             <div className="h-12 skeleton rounded-lg"></div>
             <AssetListSkeleton />
           </>
+        ) : !isConnected ? (
+          <EmptyStateEnhanced />
         ) : (
           <>
             {/* Portfolio Summary */}
-            {portfolio.length > 0 && (
+            {tokens.length > 0 && (
               <PortfolioSummary
                 totalValue={totalValue}
                 dailyChange={dailyChange}
@@ -98,21 +105,44 @@ export default function Home() {
               />
             )}
 
-            {/* Add Token Button */}
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="w-full btn-primary flex items-center justify-center gap-2"
-            >
-              <Plus size={20} />
-              Add Token
-            </button>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="flex-1 btn-primary flex items-center justify-center gap-2"
+                disabled={!isConnected}
+              >
+                <DollarSign size={20} />
+                Send USDC
+              </button>
+              <button
+                onClick={refresh}
+                className="px-4 py-3 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-all duration-200 flex items-center gap-2"
+                disabled={!isConnected || isLoading}
+              >
+                <RefreshCw size={20} className={isLoading ? 'animate-spin' : ''} />
+              </button>
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="card bg-danger/10 border-danger/20">
+                <p className="text-danger text-sm">{error}</p>
+              </div>
+            )}
 
             {/* Asset List or Empty State */}
-            {portfolio.length > 0 ? (
-              <AssetList assets={portfolio} onRemove={removeAsset} />
+            {tokens.length > 0 ? (
+              <AssetList assets={tokens} onRemove={() => {}} />
             ) : (
-              <EmptyStateEnhanced onAddClick={() => setIsAddModalOpen(true)} />
+              <div className="card text-center py-8">
+                <p className="text-fg/60">No tokens found in your wallet</p>
+                <p className="text-sm text-fg/40 mt-2">Connected: {address?.slice(0, 6)}...{address?.slice(-4)}</p>
+              </div>
             )}
+
+            {/* NFT Gallery */}
+            {nfts.length > 0 && <NFTGallery nfts={nfts} />}
 
             {/* User Info (if available) */}
             {context?.user && (
@@ -144,11 +174,10 @@ export default function Home() {
         )}
       </div>
 
-      {/* Add Asset Modal */}
-      <AddAssetModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={addAsset}
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
       />
     </main>
   );

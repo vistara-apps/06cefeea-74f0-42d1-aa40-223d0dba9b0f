@@ -6,10 +6,16 @@ import { base } from 'wagmi/chains';
 import { type ReactNode, useState } from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 
+// Use Alchemy RPC for better reliability and performance
+const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
+const rpcUrl = alchemyKey 
+  ? `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`
+  : 'https://mainnet.base.org';
+
 const wagmiConfig = createConfig({
   chains: [base],
   transports: {
-    [base.id]: http(),
+    [base.id]: http(rpcUrl),
   },
 });
 
