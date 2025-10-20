@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '@coinbase/onchainkit/styles.css';
+
 :root {
   /* BASE theme - dark blue background, Base blue accents */
   --color-bg: hsl(220, 40%, 8%);
@@ -37,19 +39,25 @@ body {
 @layer components {
   .btn-primary {
     @apply bg-accent text-white px-6 py-3 rounded-lg font-medium;
-    @apply hover:opacity-90 active:opacity-80;
-    @apply transition-opacity duration-200;
+    @apply hover:opacity-90 hover:scale-[1.02] active:scale-[0.98];
+    @apply transition-all duration-200 shadow-lg;
+    box-shadow: 0 10px 15px -3px rgba(0, 82, 255, 0.2), 0 4px 6px -4px rgba(0, 82, 255, 0.1);
   }
 
   .btn-secondary {
     @apply bg-surface text-fg px-6 py-3 rounded-lg font-medium;
-    @apply hover:bg-opacity-80 active:bg-opacity-70;
+    @apply hover:bg-opacity-80 active:bg-opacity-70 hover:scale-[1.02] active:scale-[0.98];
     @apply transition-all duration-200;
   }
 
   .card {
-    @apply bg-surface rounded-lg p-4;
+    @apply bg-surface rounded-lg p-4 border transition-all duration-300;
+    border-color: rgba(255, 255, 255, 0.05);
     box-shadow: 0 8px 24px rgba(0, 82, 255, 0.12);
+  }
+  
+  .card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .input-field {
@@ -57,5 +65,50 @@ body {
     @apply focus:outline-none focus:ring-2 focus:ring-accent;
     @apply transition-all duration-200;
     border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .input-field:focus {
+    border-color: rgba(0, 82, 255, 0.5);
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded bg-surface opacity-50;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  .slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
   }
 }

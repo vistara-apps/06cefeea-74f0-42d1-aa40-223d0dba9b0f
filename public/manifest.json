@@ -1,14 +1,14 @@
 {
   "name": "Minifolio",
-  "description": "Minifolio is a Base Mini App built with Zara.",
-  "image": "https://dummyimage.com/1200x628/0a0b0d/ffffff.png&text=OG",
+  "description": "Track your crypto portfolio on Base and share with friends on Farcaster",
+  "image": "https://dummyimage.com/1200x628/0a0b0d/0052ff.png&text=Minifolio",
   "external_url": "https://06cefeea-74f0-42d1-aa40-223d0dba9b0f.vercel.app",
   "properties": {
     "app": {
       "name": "Minifolio",
-      "description": "Minifolio is a Base Mini App built with Zara.",
+      "description": "A beautiful crypto portfolio tracker for Base with Farcaster integration",
       "url": "https://06cefeea-74f0-42d1-aa40-223d0dba9b0f.vercel.app",
-      "icon": "https://0co.to/images/zara-2.png"
+      "icon": "https://06cefeea-74f0-42d1-aa40-223d0dba9b0f.vercel.app/minifolio-icon-256x256.png"
     }
   }
 }
