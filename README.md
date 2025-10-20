@@ -1,23 +1,23 @@
 # Minifolio - Farcaster-Native Crypto Portfolio Tracker
 
-A Base Mini App for tracking your crypto portfolio directly within Farcaster.
+A Base Mini App for tracking your crypto portfolio and sharing performance with friends on Farcaster.
 
 ## Features
 
-- 📊 **Live Portfolio Valuation** - Real-time market prices from CoinGecko
-- ✏️ **Simple Asset Management** - Easy add, edit, and remove holdings
-- 📈 **Performance Tracking** - 24h change and P&L calculations
-- 🎨 **BASE Theme** - Beautiful dark blue design with Base branding
-- 📱 **Mobile-First** - Optimized for Farcaster mobile experience
+- 📊 **Live Portfolio Valuation** - Track your crypto holdings with real-time prices
+- 💼 **Simple Asset Management** - Easy-to-use interface for adding and managing tokens
+- 🎯 **Farcaster Integration** - Share portfolio performance directly to your Farcaster feed
+- 🔗 **Wallet-Native** - Built with OnchainKit for seamless Base blockchain integration
+- 🎨 **Beautiful UI** - Modern, mobile-first design with BASE theme
 
 ## Tech Stack
 
-- **Next.js 15** with App Router
-- **React 19** for modern UI patterns
-- **OnchainKit** for Base integration
-- **MiniKit** for Farcaster features
-- **TypeScript** for type safety
-- **Tailwind CSS** for styling
+- **Framework**: Next.js 15 with App Router
+- **Blockchain**: Base (L2 on Ethereum)
+- **Wallet**: OnchainKit (@coinbase/onchainkit)
+- **Social**: Farcaster Mini Apps (@farcaster/miniapp-sdk)
+- **Styling**: Tailwind CSS with custom BASE theme
+- **State**: React 19 with hooks
 
 ## Getting Started
 
@@ -26,7 +26,7 @@ A Base Mini App for tracking your crypto portfolio directly within Farcaster.
 npm install
 ```
 
-2. Create `.env.local`:
+2. Create `.env.local` file:
 ```bash
 cp .env.local.example .env.local
 ```
@@ -40,22 +40,47 @@ npm run dev
 
 5. Open [http://localhost:3000](http://localhost:3000)
 
-## Deployment
+## Project Structure
 
-Deploy to Vercel or any Next.js-compatible platform:
-
-```bash
-npm run build
-npm start
 ```
+minifolio/
+├── app/
+│   ├── components/       # React components
+│   ├── hooks/           # Custom React hooks
+│   ├── types.ts         # TypeScript types
+│   ├── providers.tsx    # Context providers
+│   ├── layout.tsx       # Root layout
+│   ├── page.tsx         # Main page
+│   └── globals.css      # Global styles
+├── public/
+│   └── .well-known/
+│       └── farcaster.json  # Farcaster manifest
+└── package.json
+```
+
+## Key Components
+
+- **PortfolioSummary**: Displays total value and daily change
+- **AssetList**: Shows all tracked tokens with prices
+- **AddAssetModal**: Form for adding new tokens
+- **ConnectWalletButton**: Wallet connection (OnchainKit integration)
+
+## Farcaster Integration
+
+This app is designed to run as a Farcaster Mini App with:
+- User context access (FID, username, profile)
+- Frame generation for sharing
+- Composable casts with portfolio snapshots
+- Future: Notifications for portfolio changes
 
 ## Future Features
 
-- 🔄 Token swaps with gas sponsorship
-- 🖼️ Farcaster Frame generation for sharing
-- 🔔 Portfolio change notifications
-- 📊 Historical performance charts
+- 🔄 Real-time price updates via CoinGecko API
+- 💱 In-app token swaps with gas sponsorship
+- 📈 Historical performance charts
 - 🏆 Leaderboards and social features
+- 🔔 Push notifications for significant changes
+- 🎨 Custom portfolio themes
 
 ## License
 

@@ -1,58 +1,49 @@
 'use client';
 
-import { Share2, TrendingUp, TrendingDown } from 'lucide-react';
-import type { PortfolioSummary as PortfolioSummaryType } from '@/lib/types';
+import { TrendingUp, TrendingDown, Share2 } from 'lucide-react';
 
 interface PortfolioSummaryProps {
-  summary: PortfolioSummaryType;
+  totalValue: number;
+  dailyChange: number;
+  onShare: () => void;
 }
 
-export function PortfolioSummary({ summary }: PortfolioSummaryProps) {
-  const isPositive = summary.dailyChangePercent >= 0;
-
-  const handleShare = () => {
-    // Future: Integrate with MiniKit composeCast
-    const message = `My Minifolio is ${isPositive ? 'up' : 'down'} ${Math.abs(summary.dailyChangePercent).toFixed(2)}% today! 📈`;
-    alert(`Share feature coming soon!\n\n${message}`);
-  };
+export function PortfolioSummary({ totalValue, dailyChange, onShare }: PortfolioSummaryProps) {
+  const isPositive = dailyChange >= 0;
 
   return (
-    <div className="bg-surface rounded-lg p-6 card-shadow space-y-4">
-      <h2 className="text-xl font-bold text-fg">Summary</h2>
-      
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-fg/70">Total Value</span>
-          <span className="font-bold text-fg text-lg">
-            ${summary.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+    <div className="card">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <p className="text-sm text-fg/60 mb-1">Total Portfolio Value</p>
+          <h2 className="text-4xl font-bold text-fg">
+            ${totalValue.toFixed(2)}
+          </h2>
         </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-fg/70">24h Change</span>
-          <div className={`flex items-center gap-2 font-medium ${isPositive ? 'text-success' : 'text-danger'}`}>
-            {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            <span>
-              {isPositive ? '+' : ''}{summary.dailyChangePercent.toFixed(2)}%
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-fg/70">24h P&L</span>
-          <span className={`font-medium ${isPositive ? 'text-success' : 'text-danger'}`}>
-            {isPositive ? '+' : ''}${Math.abs(summary.dailyChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-        </div>
+        <button
+          onClick={onShare}
+          className="p-2 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors duration-200"
+          aria-label="Share portfolio"
+        >
+          <Share2 size={20} />
+        </button>
       </div>
 
-      <button
-        onClick={handleShare}
-        className="w-full bg-primary hover:bg-accent text-white font-medium py-3 rounded-md flex items-center justify-center gap-2 transition-smooth mt-4"
-      >
-        <Share2 size={20} />
-        Share Performance
-      </button>
+      <div className="flex items-center gap-2">
+        {isPositive ? (
+          <TrendingUp size={20} className="text-success" />
+        ) : (
+          <TrendingDown size={20} className="text-danger" />
+        )}
+        <span
+          className={`text-lg font-semibold ${
+            isPositive ? 'text-success' : 'text-danger'
+          }`}
+        >
+          {isPositive ? '+' : ''}{dailyChange.toFixed(2)}%
+        </span>
+        <span className="text-sm text-fg/60">Today</span>
+      </div>
     </div>
   );
 }

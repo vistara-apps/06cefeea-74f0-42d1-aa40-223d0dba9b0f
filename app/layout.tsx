@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Minifolio - Your Farcaster Crypto Portfolio",
-  description: "Track your crypto holdings and share performance on Farcaster",
+  title: "Minifolio - Your Farcaster Portfolio Tracker",
+  description: "Track your crypto portfolio on Base, share with friends on Farcaster",
   icons: {
     icon: "/minifolio-icon-256x256.png",
   },

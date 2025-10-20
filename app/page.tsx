@@ -1,139 +1,114 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { PortfolioHeader } from './components/PortfolioHeader';
-import { PortfolioInputForm } from './components/PortfolioInputForm';
-import { AssetList } from './components/AssetList';
+import { useState, useEffect } from 'react';
+import { Plus, TrendingUp, TrendingDown, Share2, Wallet } from 'lucide-react';
 import { PortfolioSummary } from './components/PortfolioSummary';
-import { EmptyState } from './components/EmptyState';
-import type { UserHolding, CryptoPriceData, PortfolioSummary as PortfolioSummaryType } from '@/lib/types';
-import { fetchMultipleTokenPrices } from '@/lib/api';
-import { loadPortfolio, savePortfolio } from '@/lib/storage';
+import { AssetList } from './components/AssetList';
+import { AddAssetModal } from './components/AddAssetModal';
+import { ConnectWalletButton } from './components/ConnectWalletButton';
+import { useMiniKit } from './hooks/useMiniKit';
+import { usePortfolio } from './hooks/usePortfolio';
 
 export default function Home() {
-  const [holdings, setHoldings] = useState<UserHolding[]>([]);
-  const [prices, setPrices] = useState<Map<string, CryptoPriceData>>(new Map());
-  const [isLoading, setIsLoading] = useState(true);
-  const [summary, setSummary] = useState<PortfolioSummaryType>({
-    totalValue: 0,
-    dailyChange: 0,
-    dailyChangePercent: 0,
-  });
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { context, isReady } = useMiniKit();
+  const { portfolio, addAsset, removeAsset, totalValue, dailyChange } = usePortfolio();
 
-  // Load portfolio on mount
   useEffect(() => {
-    const savedPortfolio = loadPortfolio();
-    if (savedPortfolio?.holdings) {
-      setHoldings(savedPortfolio.holdings);
+    if (isReady) {
+      console.log('MiniKit ready, user context:', context?.user);
     }
-    setIsLoading(false);
-  }, []);
+  }, [isReady, context]);
 
-  // Fetch prices when holdings change
-  useEffect(() => {
-    if (holdings.length === 0) {
-      setPrices(new Map());
-      setSummary({ totalValue: 0, dailyChange: 0, dailyChangePercent: 0 });
-      return;
-    }
-
-    const fetchPrices = async () => {
-      const symbols = holdings.map(h => h.tokenSymbol);
-      const priceData = await fetchMultipleTokenPrices(symbols);
-      setPrices(priceData);
-    };
-
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 60000); // Update every minute
-
-    return () => clearInterval(interval);
-  }, [holdings]);
-
-  // Calculate summary when prices or holdings change
-  useEffect(() => {
-    if (holdings.length === 0 || prices.size === 0) {
-      setSummary({ totalValue: 0, dailyChange: 0, dailyChangePercent: 0 });
-      return;
-    }
-
-    let totalValue = 0;
-    let totalDailyChange = 0;
-
-    holdings.forEach(holding => {
-      const price = prices.get(holding.tokenSymbol.toUpperCase());
-      if (price) {
-        const value = holding.quantity * price.currentPriceUSD;
-        totalValue += value;
-        
-        const previousValue = value / (1 + price.dailyChangePercent / 100);
-        totalDailyChange += (value - previousValue);
-      }
-    });
-
-    const dailyChangePercent = totalValue > 0 ? (totalDailyChange / (totalValue - totalDailyChange)) * 100 : 0;
-
-    setSummary({
-      totalValue,
-      dailyChange: totalDailyChange,
-      dailyChangePercent,
-    });
-  }, [holdings, prices]);
-
-  // Save portfolio when holdings change
-  useEffect(() => {
-    if (!isLoading) {
-      savePortfolio({
-        holdings,
-        lastUpdated: Date.now(),
-      });
-    }
-  }, [holdings, isLoading]);
-
-  const handleAddHolding = (holding: UserHolding) => {
-    setHoldings(prev => [...prev, holding]);
+  const handleShare = async () => {
+    const changePercent = dailyChange.toFixed(2);
+    const isPositive = dailyChange >= 0;
+    const emoji = isPositive ? '📈' : '📉';
+    
+    const message = `${emoji} My Minifolio is ${isPositive ? 'up' : 'down'} ${Math.abs(parseFloat(changePercent))}% today! Total value: $${totalValue.toFixed(2)}`;
+    
+    // In a real implementation, this would use MiniKit's composeCast
+    alert(`Share to Farcaster:\n\n${message}`);
   };
-
-  const handleRemoveHolding = (id: string) => {
-    setHoldings(prev => prev.filter(h => h.id !== id));
-  };
-
-  const handleUpdateHolding = (id: string, quantity: number) => {
-    setHoldings(prev =>
-      prev.map(h => (h.id === id ? { ...h, quantity } : h))
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-fg">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-bg">
-      <div className="max-w-md mx-auto px-4 py-8">
-        <PortfolioHeader summary={summary} />
-        
-        <div className="mt-8 space-y-6 animate-fade-in">
-          <PortfolioInputForm onAddHolding={handleAddHolding} />
-          
-          {holdings.length > 0 ? (
-            <>
-              <AssetList
-                holdings={holdings}
-                prices={prices}
-                onRemove={handleRemoveHolding}
-                onUpdate={handleUpdateHolding}
-              />
-              <PortfolioSummary summary={summary} />
-            </>
-          ) : (
-            <EmptyState />
-          )}
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-surface border-b border-white/10">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-fg">Minifolio</h1>
+            <p className="text-sm text-fg/60">Track your crypto on Base</p>
+          </div>
+          <ConnectWalletButton />
         </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        {/* Portfolio Summary */}
+        <PortfolioSummary
+          totalValue={totalValue}
+          dailyChange={dailyChange}
+          onShare={handleShare}
+        />
+
+        {/* Add Token Button */}
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="w-full btn-primary flex items-center justify-center gap-2"
+        >
+          <Plus size={20} />
+          Add Token
+        </button>
+
+        {/* Asset List */}
+        {portfolio.length > 0 ? (
+          <AssetList assets={portfolio} onRemove={removeAsset} />
+        ) : (
+          <div className="card text-center py-12">
+            <div className="text-fg/40 mb-4">
+              <Wallet size={48} className="mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-fg mb-2">
+              No assets yet
+            </h3>
+            <p className="text-sm text-fg/60 mb-4">
+              Add your first token to start tracking your portfolio
+            </p>
+          </div>
+        )}
+
+        {/* User Info (if available) */}
+        {context?.user && (
+          <div className="card">
+            <div className="flex items-center gap-3">
+              {context.user.pfpUrl && (
+                <img
+                  src={context.user.pfpUrl}
+                  alt={context.user.displayName || 'User'}
+                  className="w-10 h-10 rounded-full"
+                />
+              )}
+              <div>
+                <p className="text-sm font-medium text-fg">
+                  {context.user.displayName || context.user.username}
+                </p>
+                <p className="text-xs text-fg/60">
+                  FID: {context.user.fid}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Add Asset Modal */}
+      <AddAssetModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={addAsset}
+      />
     </main>
   );
 }
