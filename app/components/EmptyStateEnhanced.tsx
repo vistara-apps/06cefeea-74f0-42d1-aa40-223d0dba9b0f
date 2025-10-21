@@ -2,11 +2,7 @@
 
 import { Wallet, TrendingUp, Coins, Plus } from 'lucide-react';
 
-interface EmptyStateProps {
-  onAddClick: () => void;
-}
-
-export function EmptyStateEnhanced({ onAddClick }: EmptyStateProps) {
+export function EmptyStateEnhanced() {
   return (
     <div className="card text-center py-12 fade-in">
       {/* Animated Icon Group */}
@@ -24,10 +20,10 @@ export function EmptyStateEnhanced({ onAddClick }: EmptyStateProps) {
 
       {/* Content */}
       <h3 className="text-2xl font-bold text-fg mb-2">
-        Start Your Portfolio
+        Connect Your Wallet
       </h3>
       <p className="text-sm text-fg/60 mb-6 max-w-sm mx-auto">
-        Track your crypto holdings on Base and share your performance with friends on Farcaster
+        Connect your wallet to view your real token balances, NFTs, and portfolio on Base
       </p>
 
       {/* Features */}
@@ -42,14 +38,10 @@ export function EmptyStateEnhanced({ onAddClick }: EmptyStateProps) {
         </div>
       </div>
 
-      {/* CTA Button */}
-      <button
-        onClick={onAddClick}
-        className="btn-primary mx-auto inline-flex items-center gap-2"
-      >
-        <Plus size={20} />
-        Add Your First Token
-      </button>
+      {/* Info */}
+      <p className="text-xs text-fg/40 mt-4">
+        Click &quot;Connect Wallet&quot; in the top right to get started
+      </p>
     </div>
   );
 }
